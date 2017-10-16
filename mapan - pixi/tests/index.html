@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+    </head>
+    <body>
+        <canvas id="myCanvas" width="1000" height="1000"></canvas>
+    </body>
+    <script src="Triangle.js"></script>
+    <script src="gl-matrix.js" ></script>
+    <script type="text/javascript">
+        let canvas = document.querySelector("#myCanvas");
+        let ctx = canvas.getContext('2d');
+        let canvasWidth = 10;
+        let canvasHeight = 10;
+        let alpha = 0;
+        function callback(){
+
+            ctx.canvas.width  = window.innerWidth;
+            ctx.canvas.height = window.innerHeight;
+            alpha += 0.01;
+
+            function dessinerTriangle(){
+//                for(let i = 0; i<15; i++){
+//                    let x = getRandomInt(0, window.innerWidth);
+//                    let y = getRandomInt(0, window.innerHeight);
+//                    let r = getRandomInt(20,180);
+//                    let x = 50;
+//                    let y = 50;
+                    let r = 0;
+                    let s = 1;
+                    let triangle = new Triangle(r, s);
+                    triangle.update(triangle.update);
+//                    requestAnimationFrame(callback);
+                    triangle.render();
+//                }
+            }
+            function update(){
+                requestAnimationFrame(update);
+                ctx.clearRect( 0, 0, canvasWidth, canvasHeight )
+
+                if ( rect.position.x > canvasWidth || rect.position.x < 0 ) {
+                    rect.velocity.x *= -1
+                }
+                if ( rect.position.y > canvasHeight || rect.position.y < 0 ) {
+                    rect.velocity.y *= -1
+                }
+
+                rect.update()
+                rect.render()
+
+            }
+//            function dessinerCarre(){
+//                for(let i = 0; i<25; i++){
+//                    let x = getRandomInt(0, window.innerWidth);
+//                    let y = getRandomInt(0, window.innerHeight);
+//                    let r = getRandomInt(20,180);
+//                    let s = Math.random()*3;
+//                    let c = new Square(x, y,r, s);
+//                    c.render();
+//                }
+//            }
+
+            dessinerTriangle();
+//            dessinerCarre();
+
+        }
+
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min)) + min;
+        }
+
+        function  frame(){
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight)
+            for ( var i = 0 ; i < triangles.length; i++){
+                var t = triangles[i];
+                t.update();
+                t.render(ctx);
+            }
+            requestAnimationFrame(frame);
+        }
+        frame();
+
+
+
+        window.requestAnimationFrame(update );
+
+
+
+
+
+//        ctx.drawImage(img, 0, 0, img.width / 2, img.height / 2);
+//        //img, sx, sy, swidth, sheight, dx, dy, dwidth, dheight : s = source ; d = destination
+//
+//        ctx.globalAlpha = .2;
+
+        //masque : dessiner le masque, mettre le ctx.clip, puis mettre l'image
+        //pour mettre en masque la forme d'une image : ctx.globalCompositeOperation = ' source-over' / 'source-in'
+
+    </script>
+</html>
