@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        canvas{
+            /*background: black;*/
+        }
+        body{
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+<canvas id="myCanvas" width="1000" height="1000"></canvas>
+</body>
+<script src="easing.js"></script>
+<script src="simple-noise.js"></script>
+<script src="gl-matrix.js" ></script>
+<script type="text/javascript">
+    let canvas = document.querySelector("#myCanvas");
+    let ctx = canvas.getContext('2d');
+    let pX ='';
+    let pY ='';
+    let rafId;
+    let cercles =[]
+    let now = Date.now();
+    let deltaTime =  16
+    let lastTime = now;
+    let alpha = 0;
+    let angle = 0
+    let radius = 300
+    let time = 0
+    let simplex = new SimplexNoise()
+    ctx.canvas.width  = window.innerWidth;
+    ctx.canvas.height = window.innerHeight;
+
+    let Cercle = function(opts){
+        this.x = opts.x;
+        this.y = opts.y;
+        this.cos = opts.cos;
+        this.sin = opts.sin;
+        this.size = opts.size;
+        this.angle = opts.angle
+        this.value2d = 0
+        this.color = "red"
+    };
+
+    Cercle.prototype = {
+
+        render: function(ctx, cercles) {
+//            ctx.clearRect( 0, 0, canvas.width, canvas.height )
+            ctx.save();
+//            ctx.rotate(this.angle);
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.moveTo( 0, 0 );
+            ctx.arc(this.x, this.y, 2, 0, 2 * Math.PI, false);
+            ctx.fill();
+            ctx.closePath();
+            ctx.restore();
+
+        },
+
+
+    };
+
+    var nbPoints = 3000
+    var step = (Math.PI*2) / nbPoints
+    for(var i = 0; i < ( Math.PI * 2); i += step ){
+
+        var cercle = new Cercle({
+            x: Math.cos(i) * (radius),
+            y: Math.sin(i) * (radius),
+            cos: Math.cos(i),
+            sin: Math.sin(i),
+            size : 1,
+            angle: i
+        });
+        cercles.push(cercle);
+
+        cercle.render(ctx, cercles);
+
+        console.log(i, step)
+
+
+
+    }
+
+    function drawLines() {
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(cercles[0].x, cercles[0].y);
+        for (var i = 0; i < cercles.length; i++) {
+            ctx.lineTo(cercles[i].x, cercles[i].y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+        ctx.restore()
+    }
+
+
+    function renderApp() {
+
+        requestAnimationFrame(renderApp)
+
+        ctx.clearRect( 0, 0, canvas.width, canvas.height )
+
+        time += 0.001
+
+        for( var i = 0; i < cercles.length ; i++ ){
+
+            var cercle = cercles[i]
+            var cercleSuivant = cercles[i+1]
+
+            var displacement = simplex.noise2D(cercle.cos + time, cercle.sin + time) * 100
+
+            cercle.x = canvas.width/2 +  Math.cos(cercle.angle) * (radius + displacement)
+            cercle.y = canvas.height/2 + Math.sin(cercle.angle) * (radius + displacement)
+
+            cercle.render(ctx);
+
+        }
+
+        drawLines();
+        
+
+    }
+    renderApp();
+
+
+</script>
+</html>

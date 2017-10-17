@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        canvas{
+            /*background: black;*/
+        }
+        body{
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+<canvas id="myCanvas" width="1000" height="1000"></canvas>
+</body>
+<script src="easing.js"></script>
+<script src="gl-matrix.js" ></script>
+<script type="text/javascript">
+    let canvas = document.querySelector("#myCanvas");
+    let ctx = canvas.getContext('2d');
+    let pX ='';
+    let pY ='';
+    let rafId;
+    let now = Date.now();
+    let deltaTime =  16
+    let lastTime = now;
+    ctx.canvas.width  = window.innerWidth;
+    ctx.canvas.height = window.innerHeight;
+
+
+    let Triangle = function(opts){
+        this.x = 0;
+        this.y = 0;
+        this.size = opts.size;
+        this.position = vec2.create();
+        this.position[0]=opts.x; //vecteur
+        this.position[1]=opts.x; //vecteur
+
+        this.tweenCurrentTime = 0
+        this.tweenDuration = 0
+        this.targetDestination = []
+        this.angle= 0
+        this.frame = this._frame.bind(this)
+
+    };
+
+    Triangle.prototype = {
+        update: function() {
+////            vec2.add(this.position, this.position, this.velocity);
+//            if ( this.position[0] > canvas.width || this.position[0] < 0 ) {
+//                this.velocity[0] *= -1
+//            }
+//            if ( this.position[1] > canvas.height || this.position[1] < 0 ) {
+//                this.velocity[1] *= -1
+//            }
+        },
+        render: function(ctx) {
+
+            ctx.clearRect( 0, 0, canvas.width, canvas.height )
+
+            ctx.save();
+            ctx.translate( this.position[0], this.position[1] )
+            ctx.rotate(this.angle);
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.moveTo( -50, 50 );
+            ctx.lineTo( 0, -50 );
+            ctx.lineTo( 50,  50 );
+            ctx.lineTo( -50, 50 );
+            ctx.fill();
+            ctx.closePath();
+            ctx.restore();
+        },
+        tween: function( targetDestination, duration ) {
+
+            this.tweenCurrentTime = 0
+            this.targetDestination = targetDestination
+            this.tweenDuration = duration
+            this.startPosition = vec2.fromValues( this.position[0], this.position[1] )
+
+            this.angle = Math.atan2(targetDestination[0]-canvas.width/2, targetDestination[1]-canvas.height/2) + Math.PI * 0.5;
+            console.log('5'+targetDestination[0]) ;
+            this.frame()
+
+
+        },
+
+        _frame: function() {
+
+            this.rafId = requestAnimationFrame(this.frame)
+//            this.rafId = requestAnimationFrame(this.frame.bind(this))
+
+            now = Date.now();
+            deltaTime =  now - lastTime;
+            lastTime = now;
+console.log('bbbb ' +deltaTime)
+            this.tweenCurrentTime += deltaTime
+
+            if ( this.tweenCurrentTime < this.tweenDuration ) {
+                this.position[0] = Easing.easeOutCubic( this.tweenCurrentTime, this.startPosition[0], this.targetDestination[0] - this.startPosition[0], this.tweenDuration  )
+                this.position[1] = Easing.easeOutCubic( this.tweenCurrentTime, this.startPosition[1], this.targetDestination[1] - this.startPosition[1], this.tweenDuration  )
+            }
+            else {
+                cancelAnimationFrame(this.rafId)
+                this.angle = Math.PI/2 ;
+            }
+
+            console.log( this.tweenCurrentTime )
+
+            this.render(ctx)
+
+        }
+    };
+    var triangle = new Triangle({
+        x : 200,
+        y : 200,
+        size : 1,
+    });
+    triangle.update();
+    triangle.render(ctx);
+    document.addEventListener("click", onClick.bind(this), false);
+
+    function onClick( evt ) {
+
+        var mousePos = [
+            evt.clientX,
+            evt.clientY
+        ]
+        lastTime = Date.now();
+        triangle.tween( mousePos, 1000 )
+//        var angle = Math.atan2(mousePos[0], mousePos[1]);
+//        console.log('456456'+angle);
+    }
+</script>
+</html>
